@@ -40,11 +40,18 @@ pitchOgg = ['C.ogg', 'D.ogg', 'E.ogg', 'F.ogg', 'G.ogg', 'A.ogg', 'B.ogg']
 
 oggPath = './ogg/alphabet/'
 numPath = './ogg/number/'
+notePath = './ogg/noteSpell/'
 soundPath = './ogg/pitchSound/piano/'
 
-soundList = []
 stringList = []
 natrualList = []
+
+
+def text2voice(noteName, file):
+    text = noteName.replace('#', ' sharp')
+    url = 'http://tts.baidu.com/text2audio?idx=1&tex=input&cuid=baidu_speech_demo&cod=2&lan=en&ctp=1&pdt=1&spd=4&per=2&vol=5&pit=9'.replace('input', text)
+    
+    print('wget "%s" -O %s.mp3'%(url, noteName), file=file)
 
 
 def getNoteName(string, fret):
@@ -80,6 +87,8 @@ def getNoteName(string, fret):
 
 
 def fretBoardInit():
+    #file = open('get_voice.sh', 'w+')
+
     for s in range(1, 7):
         fretList = []
 
@@ -90,6 +99,8 @@ def fretBoardInit():
             fretsDict['noteName'] = getNoteName(s, f)
             fretsDict['soundSrc'] = str(fretsDict['noteName'])+'.ogg'
 
+            #text2voice(fretsDict['noteName'], file)
+
             fretList.append(fretsDict)
 
         print('\n######String-%d######'%(s))
@@ -97,24 +108,13 @@ def fretBoardInit():
 
         stringList.append(fretList)
 
+    #file.close()
     #print(stringList)
 
 
 
 def pygameInit():
     pygame.mixer.init()
-
-    sharpSound = pygame.mixer.Sound(oggPath+sfOgg[0])
-    flatSound = pygame.mixer.Sound(oggPath+sfOgg[1])
-
-    i = 0
-    for i in range(0, 7):
-        sound = pygame.mixer.Sound(oggPath+pitchOgg[i])
-        soundList.append(sound)
-        i = i+1
-
-    soundList.append(pygame.mixer.Sound(oggPath+sfOgg[0]))
-    soundList.append(pygame.mixer.Sound(oggPath+sfOgg[1]))
 
 
 def main(args):
@@ -156,22 +156,17 @@ def main(args):
       sound = pygame.mixer.Sound(soundPath+stringList[s-1][f]['soundSrc'])
       sound.play()
 
+      noteName = stringList[s-1][f]['noteName']
+      noteOgg = noteName+'.ogg'
+      noteSound = pygame.mixer.Sound(notePath+noteOgg)
+
       time.sleep(2)
-      charName = stringList[s-1][f]['noteName'][0]
-      charOgg = charName+'.ogg'
-      char = pygame.mixer.Sound(oggPath+charOgg)
 
-      char.play()
-      time.sleep(0.2)
-
-      if '#' in stringList[s-1][f]['noteName']:
-          soundList[7].play()
+      noteSound.play()
 
       print('## Info ## : ', stringList[s-1][f], '----------------------', 
             stringList[s-1][f]['noteName'], '\n')
-      #soundList[i].play()
 
-      #soundList[7].play()
       time.sleep(args.delay)
 
 
