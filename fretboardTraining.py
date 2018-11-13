@@ -35,7 +35,7 @@ twelvePitches = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
 
 sfOgg = ['sharp.ogg', 'flat.ogg']
 numOgg = ['1.ogg', '2.ogg', '3.ogg', '4.ogg', '5.ogg', '6.ogg', '7.ogg']
-pitchOgg = ['c.ogg', 'd.ogg', 'e.ogg', 'f.ogg', 'g.ogg', 'a.ogg', 'b.ogg']
+pitchOgg = ['C.ogg', 'D.ogg', 'E.ogg', 'F.ogg', 'G.ogg', 'A.ogg', 'B.ogg']
 
 
 oggPath = './ogg/alphabet/'
@@ -44,6 +44,7 @@ soundPath = './ogg/pitchSound/piano/'
 
 soundList = []
 stringList = []
+natrualList = []
 
 
 def getNoteName(string, fret):
@@ -133,7 +134,7 @@ def main(args):
             exit()
 
     numStart = 0
-    numEnd = 12
+    numEnd = 11
 
     if args.frets:
         rangeStr = re.findall(r"\d+\.?\d*",args.frets)
@@ -154,6 +155,17 @@ def main(args):
 
       sound = pygame.mixer.Sound(soundPath+stringList[s-1][f]['soundSrc'])
       sound.play()
+
+      time.sleep(2)
+      charName = stringList[s-1][f]['noteName'][0]
+      charOgg = charName+'.ogg'
+      char = pygame.mixer.Sound(oggPath+charOgg)
+
+      char.play()
+      time.sleep(0.2)
+
+      if '#' in stringList[s-1][f]['noteName']:
+          soundList[7].play()
 
       print('## Info ## : ', stringList[s-1][f], '----------------------', 
             stringList[s-1][f]['noteName'], '\n')
@@ -178,5 +190,6 @@ if __name__ == '__main__':
 
     pygameInit()
     fretBoardInit()
+
     main(args)
 
