@@ -70,6 +70,7 @@ def text2voice(noteName, file):
     print('wget "%s" -O %s.mp3'%(url, noteName), file=file)
 
 
+
 def getNoteName(string, fret):
 
     if string == 1:
@@ -103,7 +104,7 @@ def getNoteName(string, fret):
 
 
 def fretBoardInit():
-    file = open('get_voice.sh', 'w+')
+    #file = open('get_voice.sh', 'w+')
 
     for s in range(1, 7):
         fretList = []
@@ -115,7 +116,7 @@ def fretBoardInit():
             fretsDict['noteName'] = getNoteName(s, f)
             fretsDict['soundSrc'] = str(fretsDict['noteName'])+'.ogg'
 
-            text2voice(fretsDict['noteName'], file)
+            #text2voice(fretsDict['noteName'], file)
 
             fretList.append(fretsDict)
 
@@ -124,7 +125,7 @@ def fretBoardInit():
 
         stringList.append(fretList)
 
-    file.close()
+    #file.close()
     #print(stringList)
 
 
@@ -147,7 +148,7 @@ def main(args):
         print('## Info ## : String range %s'%(args.strings))
 
         if strStart < 1 or strStart > 6 or strEnd < 0 or strEnd > 20 or strStart > strEnd:
-            print('## Error ## : frets input out of range %s'%(args.frets))
+            print('## Error ## : strings input out of range %s'%(args.strings))
             exit()
 
     # pitch repeat after 12 frets, so 11 frets by default
@@ -181,7 +182,7 @@ def main(args):
 
         if args.natrual or args.chromatic:
             pitchList = natrualList if args.natrual else chromaticList
-            print(pitchList)
+            #print(pitchList)
 
             if fretStart in pitchList[s-1]:
                 idxStart = pitchList[s-1].index(fretStart)
@@ -202,18 +203,19 @@ def main(args):
             f = random.randint(fretStart, fretEnd)
 
 
-        fullPath = soundPath+stringList[s-1][f]['soundSrc'] 
-        p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
-
-        time.sleep(2)
+        if args.music == False:
+            fullPath = soundPath+stringList[s-1][f]['soundSrc'] 
+            p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
+            time.sleep(2)
 
         print('\n## Info ## : ', stringList[s-1][f], '----------------------', 
             stringList[s-1][f]['noteName'], '\n')
 
-        noteName = stringList[s-1][f]['noteName']
-        noteOgg = noteName+'.ogg'
-        fullPath = notePath+noteOgg
-        p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
+        if args.word == False:
+            noteName = stringList[s-1][f]['noteName']
+            noteOgg = noteName+'.ogg'
+            fullPath = notePath+noteOgg
+            p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
 
         time.sleep(args.delay)
 
@@ -238,12 +240,13 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--strings", help="strings number: 1-6")
     parser.add_argument("-f", "--frets", help="specify frets range like 0-12")
     parser.add_argument("-d", "--delay", default=5, type=int, nargs='?', help="delay secs after bee")
-    parser.add_argument("-w", "--word", help="character sound A-G", action="store_true")
-    parser.add_argument("-m", "--music", help="play pitch sound", action="store_true")
+    parser.add_argument("-w", "--word", help="not play character sound A-G", action="store_true")
+    parser.add_argument("-m", "--music", help="not play pitch sound", action="store_true")
     parser.add_argument("-n", "--natrual", help="natrual pitches", action="store_true")
     parser.add_argument("-c", "--chromatic", help="chromatic pitches", action="store_true")
 
     args = parser.parse_args()
+    print(args)
 
     #pygameInit()
     fretBoardInit()
