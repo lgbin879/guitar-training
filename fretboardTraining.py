@@ -29,6 +29,7 @@ import pygame
 import random
 import argparse
 import subprocess
+from time import sleep
 
 natrualPitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 twelvePitches = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -176,7 +177,6 @@ def main(args):
         print(twelvePitches)
 
     while(True):
-        #char = random.choice(pitchRange)
 
         s = random.randint(strStart, strEnd)
 
@@ -206,7 +206,7 @@ def main(args):
         if args.music == False:
             fullPath = soundPath+stringList[s-1][f]['soundSrc'] 
             p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
-            time.sleep(2)
+            sleep(2)
 
         print('\n## Info ## : ', stringList[s-1][f], '----------------------', 
             stringList[s-1][f]['noteName'], '\n')
@@ -217,7 +217,7 @@ def main(args):
             fullPath = notePath+noteOgg
             p = subprocess.Popen(["mplayer", fullPath], stdout=subprocess.PIPE)
 
-        time.sleep(args.delay)
+        sleep(args.delay)
 
 '''
       ## pygame play has sound transformation, so use mplayer instead
@@ -229,7 +229,7 @@ def main(args):
       noteOgg = noteName+'.ogg'
       noteSound = pygame.mixer.Sound(notePath+noteOgg)
 
-      time.sleep(2)
+      sleep(2)
 
       noteSound.play()
 '''
