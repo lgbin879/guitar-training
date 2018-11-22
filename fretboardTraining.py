@@ -5,20 +5,28 @@
 
 ###
 '''
-usage: xmlyMp3Dl.py [-h] [-o OUTPUT] [-v] [-n] url
+usage: fretboardTraining.py [-h] [-i INSTRUMENT] [-s STRINGS] [-f FRETS]
+                            [-r RANGE] [-d [DELAY]] [-w] [-m] [-n] [-c]
 
-download all audioes in ximalay album like
-:https://www.ximalaya.com/ertong/11106118
-
-positional arguments:
-  url                   web url need to download
+random generate A-G pitches and play the sound
 
 optional arguments:
   -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        output file name
-  -v, --verbosity       increase output verbosity
-  -n, --noIndex         not add index to prefix
+  -i INSTRUMENT, --instrument INSTRUMENT
+                        instrument: piano/guitar
+  -s STRINGS, --strings STRINGS
+                        strings number: 1-6
+  -f FRETS, --frets FRETS
+                        specify frets range like 0-12
+  -r RANGE, --range RANGE
+                        Note range like C4-C5
+  -d [DELAY], --delay [DELAY]
+                        delay secs after bee
+  -w, --word            not play character sound A-G
+  -m, --music           not play pitch sound
+  -n, --natrual         natrual pitches
+  -c, --chromatic       chromatic pitches
+
 '''
 
 import os
@@ -33,6 +41,7 @@ from time import sleep
 
 natrualPitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 twelvePitches = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+chromaticPitches = ['C#', 'D#', 'F#', 'G#', 'A#']
 
 sfOgg = ['sharp.ogg', 'flat.ogg']
 numOgg = ['1.ogg', '2.ogg', '3.ogg', '4.ogg', '5.ogg', '6.ogg', '7.ogg']
@@ -234,11 +243,67 @@ def main(args):
       noteSound.play()
 '''
 
+def earTraining(args):
+    print('\n##### Ear Training Mode Node Range %s #####\n'%(args.range))
+
+    noteRange = args.range.split('-')
+    noteStart = noteRange[0][0:-1].upper()
+    noteEnd = noteRange[-1][0:-1].upper()
+
+    scale0 = int(noteRange[0][-1])
+    scale1 = int(noteRange[1][-1])
+
+    if args.natrual:
+        noteList = natrualPitches
+    elif args.chromatic:
+        noteList = chromaticPitches
+    else:
+        noteList = twelvePitches
+
+    if noteList.index(noteStart) > noteList.index(noteEnd):
+        noteList = noteList+noteList
+
+    if noteStart == noteEnd:
+        noteChoice = noteList
+    else:
+        noteList = noteList[noteList.index(noteStart):]
+        noteChoice = noteList[:noteList.index(noteEnd)+1]
+
+    print(noteChoice)
+
+    if args.natrual:
+        print('\n#### Natrual Pitches Only ####\n')
+        print(natrualPitches)
+    elif args.chromatic:
+        print('\n#### Chromatic Pitches Only ####\n')
+        print(list(set(twelvePitches)-set(natrualPitches)))
+    else:
+        print('\n#### All 12 Pitches ####\n')
+        print(twelvePitches)    
+
+    while(True):
+        scale = random.randint(scale0, scale1)
+        note = random.choice(noteChoice)
+
+        noteName = note+str(scale)
+        musicPath = soundPath+noteName+'.ogg'
+        namePath = notePath+noteName+'.ogg'
+
+        p = subprocess.Popen(["mplayer", musicPath], stdout=subprocess.PIPE)
+        sleep(2)
+
+        print('\n## Info ## : ', '----------------------', noteName, '\n')
+        p = subprocess.Popen(["mplayer", namePath], stdout=subprocess.PIPE)
+        sleep(args.delay)
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='random generate A-G pitches and play the sound')
     parser.add_argument("-i", "--instrument", help="instrument: piano/guitar")
     parser.add_argument("-s", "--strings", help="strings number: 1-6")
     parser.add_argument("-f", "--frets", help="specify frets range like 0-12")
+    parser.add_argument("-r", "--range", help="Note range like C4-C5")
     parser.add_argument("-d", "--delay", default=5, type=int, nargs='?', help="delay secs after bee")
     parser.add_argument("-w", "--word", help="not play character sound A-G", action="store_true")
     parser.add_argument("-m", "--music", help="not play pitch sound", action="store_true")
@@ -251,5 +316,8 @@ if __name__ == '__main__':
     #pygameInit()
     fretBoardInit()
 
-    main(args)
+    if args.range:
+        earTraining(args)
+    else:
+        main(args)
 
