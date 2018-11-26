@@ -43,13 +43,25 @@ natrualPitches = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 twelvePitches = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 chromaticPitches = ['C#', 'D#', 'F#', 'G#', 'A#']
 
-sfOgg = ['sharp.ogg', 'flat.ogg']
-numOgg = ['1.ogg', '2.ogg', '3.ogg', '4.ogg', '5.ogg', '6.ogg', '7.ogg']
-pitchOgg = ['C.ogg', 'D.ogg', 'E.ogg', 'F.ogg', 'G.ogg', 'A.ogg', 'B.ogg']
+piano7Pitches = ['C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2', 
+ 'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 
+ 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 
+ 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 
+ 'C6', 'D6', 'E6', 'F6', 'G6', 'A6', 'B6',
+ 'C7']
+pianoHalfPitches = ['C#2', 'D#2', 'F#2', 'G#2', 'A#2', 
+ 'C#3', 'D#3', 'F#3', 'G#3', 'A#3', 
+ 'C#4', 'D#4', 'F#4', 'G#4', 'A#4', 
+ 'C#5', 'D#5', 'F#5', 'G#5', 'A#5', 
+ 'C#6', 'D#6', 'F#6', 'G#6', 'A#6']
+piano12Pitches = ['C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 'A#2', 'B2', 
+ 'C3', 'C#3', 'D3', 'D#3', 'E3', 'F3', 'F#3', 'G3', 'G#3', 'A3', 'A#3', 'B3', 
+ 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 
+ 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5', 
+ 'C6', 'C#6', 'D6', 'D#6', 'E6', 'F6', 'F#6', 'G6', 'G#6', 'A6', 'A#6', 'B6',
+ 'C7']
 
 
-oggPath = './ogg/alphabet/'
-numPath = './ogg/number/'
 notePath = './ogg/noteSpell/'
 soundPath = './ogg/pitchSound/piano/'
 
@@ -247,45 +259,35 @@ def earTraining(args):
     print('\n##### Ear Training Mode Node Range %s #####\n'%(args.range))
 
     noteRange = args.range.split('-')
-    noteStart = noteRange[0][0:-1].upper()
-    noteEnd = noteRange[-1][0:-1].upper()
-
-    scale0 = int(noteRange[0][-1])
-    scale1 = int(noteRange[1][-1])
+    noteStart = noteRange[0]
+    noteEnd = noteRange[-1]
 
     if args.natrual:
-        noteList = natrualPitches
+        noteList = piano7Pitches
     elif args.chromatic:
-        noteList = chromaticPitches
+        noteList = pianoHalfPitches
     else:
-        noteList = twelvePitches
+        noteList = piano12Pitches
 
-    if noteList.index(noteStart) > noteList.index(noteEnd):
-        noteList = noteList+noteList
+    if noteStart not in noteList or noteEnd not in noteList:
+        print('## Error :', noteStart, noteEnd, 'not in', noteList)
+        sys.exit()
 
-    if noteStart == noteEnd:
-        noteChoice = noteList
-    else:
-        noteList = noteList[noteList.index(noteStart):]
-        noteChoice = noteList[:noteList.index(noteEnd)+1]
 
-    print(noteChoice)
+    noteChoice = noteList[noteList.index(noteStart):noteList.index(noteEnd)+1]
 
     if args.natrual:
         print('\n#### Natrual Pitches Only ####\n')
-        print(natrualPitches)
     elif args.chromatic:
         print('\n#### Chromatic Pitches Only ####\n')
-        print(list(set(twelvePitches)-set(natrualPitches)))
     else:
         print('\n#### All 12 Pitches ####\n')
-        print(twelvePitches)    
+
+    print(noteChoice)
 
     while(True):
-        scale = random.randint(scale0, scale1)
-        note = random.choice(noteChoice)
+        noteName = random.choice(noteChoice)
 
-        noteName = note+str(scale)
         musicPath = soundPath+noteName+'.ogg'
         namePath = notePath+noteName+'.ogg'
 
@@ -303,7 +305,7 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--instrument", help="instrument: piano/guitar")
     parser.add_argument("-s", "--strings", help="strings number: 1-6")
     parser.add_argument("-f", "--frets", help="specify frets range like 0-12")
-    parser.add_argument("-r", "--range", help="Note range like C4-C5")
+    parser.add_argument("-r", "--range", default='C4-C5', type=str, help="Note range like C4-C5")
     parser.add_argument("-d", "--delay", default=5, type=int, nargs='?', help="delay secs after bee")
     parser.add_argument("-w", "--word", help="not play character sound A-G", action="store_true")
     parser.add_argument("-m", "--music", help="not play pitch sound", action="store_true")
