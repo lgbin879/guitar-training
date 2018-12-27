@@ -255,6 +255,18 @@ def main(args):
       noteSound.play()
 '''
 
+def playKeys(noteChoice):
+    for noteName in noteChoice:
+        musicPath = soundPath+noteName+'.ogg'
+        namePath = notePath+noteName+'.ogg'
+
+        p = subprocess.Popen(["mplayer", musicPath], stdout=subprocess.PIPE)
+        sleep(2)
+
+        #print('\n## Info ## : ', '----------------------', noteName, '\n')
+        #p = subprocess.Popen(["mplayer", namePath], stdout=subprocess.PIPE)
+        #sleep(2)
+
 def earTraining(args):
     print('\n##### Ear Training Mode Node Range %s #####\n'%(args.range))
 
@@ -284,6 +296,8 @@ def earTraining(args):
         print('\n#### All 12 Pitches ####\n')
 
     print(noteChoice)
+
+    playKeys(noteChoice)
 
     while(True):
         noteName = random.choice(noteChoice)
