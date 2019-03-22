@@ -194,7 +194,7 @@ def noteTraining(args):
         noteName = random.choice(noteChoice)
 
         musicPath = soundPath+noteName+'.mp3'
-        namePath = notePath+noteName+'.mp3'
+        namePath = notePath+noteName+'.ogg'
 
         p = subprocess.Popen(["mplayer", musicPath], stdout=subprocess.PIPE)
         sleep(2)
@@ -267,7 +267,6 @@ def intervalTraining(args):
 
 
 def playChords(tonic, chordName, scaleList, delay):
-    print(tonic, chordName, scaleList)
     pitchNum = re.findall('\d+', tonic)[0]
     chordStepList = chordNoteDict[chordName]
 
@@ -360,7 +359,7 @@ if __name__ == '__main__':
     parser.add_argument("-d", "--delay", default=5, type=int, nargs='?', help="delay secs after bee")
     parser.add_argument("-s", "--scale", default='C', type=str, help="C/G/D/A/E/B/F#/Gb/Db/Ab/Eb/Bb/F")
     parser.add_argument("-u", "--updown", default='up', type=str, help="up/down")
-    parser.add_argument("-c", "--chord", default='3', type=str, help="3/6/46/sus2/sus4/7/56/34/2/9/11/13/15")
+    parser.add_argument("-c", "--chord", default='3', type=str, help="3/6/46/sus2/sus4/7/56/34/2/9/11/13")
 
     args = parser.parse_args()
     print(args)
