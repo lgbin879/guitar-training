@@ -45,7 +45,22 @@ pianoWhiteKeys = ['C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2',
  'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 
  'C6', 'D6', 'E6', 'F6', 'G6', 'A6', 'B6',
  'C7']
-pianoBlackKeys = ['C#2', 'D#2', 'F#2', 'G#2', 'A#2', 
+pianoBlackKeys = [
+ 'Db2', 'Eb2', 'Gb2', 'Ab2', 'Bb2', 
+ 'Db3', 'Eb3', 'Gb3', 'Ab3', 'Bb3', 
+ 'Db4', 'Eb4', 'Gb4', 'Ab4', 'Bb4', 
+ 'Db5', 'Eb5', 'Gb5', 'Ab5', 'Bb5', 
+ 'Db6', 'Eb6', 'Gb6', 'Ab6', 'Bb6'  
+ ]
+pianoAllKeys = [
+ 'C2', 'Db2', 'D2', 'Eb2', 'E2', 'F2', 'Gb2', 'G2', 'Ab2', 'A2', 'Bb2', 'B2', 
+ 'C3', 'Db3', 'D3', 'Eb3', 'E3', 'F3', 'Gb3', 'G3', 'Ab3', 'A3', 'Bb3', 'B3', 
+ 'C4', 'Db4', 'D4', 'Eb4', 'E4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'B4', 
+ 'C5', 'Db5', 'D5', 'Eb5', 'E5', 'F5', 'Gb5', 'G5', 'Ab5', 'A5', 'Bb5', 'B5', 
+ 'C6', 'Db6', 'D6', 'Eb6', 'E6', 'F6', 'Gb6', 'G6', 'Ab6', 'A6', 'Bb6', 'B6', 
+ 'C7']
+'''
+ pianoBlackKeys = ['C#2', 'D#2', 'F#2', 'G#2', 'A#2', 
  'C#3', 'D#3', 'F#3', 'G#3', 'A#3', 
  'C#4', 'D#4', 'F#4', 'G#4', 'A#4', 
  'C#5', 'D#5', 'F#5', 'G#5', 'A#5', 
@@ -56,6 +71,7 @@ pianoAllKeys = ['C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 
  'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5', 
  'C6', 'C#6', 'D6', 'D#6', 'E6', 'F6', 'F#6', 'G6', 'G#6', 'A6', 'A#6', 'B6',
  'C7']
+'''
 
 natrual3Chords = [  
 'C', 'Cm',   
@@ -190,8 +206,13 @@ def noteTraining(args):
 
     playKeys(noteChoice)
 
+    index = 0
     while(True):
-        noteName = random.choice(noteChoice)
+        if args.random == 'on':
+            noteName = random.choice(noteChoice)
+        else:
+            noteName = noteChoice[index%len(noteChoice)]
+            index = index + 1
 
         musicPath = soundPath+noteName+'.mp3'
         namePath = notePath+noteName+'.ogg'
@@ -231,17 +252,28 @@ def intervalTraining(args):
     else:
         firstChoice = noteList[noteList.index(noteStart)+1:noteList.index(noteEnd)+1]
 
-
+    first_index = second_index = 0
     while(True):
-        firstNote = random.choice(firstChoice)
+        if args.random == 'on':
+            firstNote = random.choice(firstChoice)
+        else:
+            firstNote = firstChoice[int(first_index%len(firstChoice))]
 
         if args.updown == 'up':
             secondChoice = noteChoice[noteChoice.index(firstNote)+1:]
         else:
             secondChoice = noteChoice[0:noteChoice.index(firstNote)]
 
-        #print(firstNote, secondChoice)
-        secondNote = random.choice(secondChoice)
+        print(firstNote, secondChoice)
+        if args.random == 'on':
+            secondNote = random.choice(secondChoice)
+        else:
+            secondNote = secondChoice[int(second_index%len(secondChoice))]
+            second_index = second_index + 1
+            if second_index%len(secondChoice) == 0:
+                first_index = first_index + 1
+                second_index = 0
+            print(first_index, second_index)
 
         firstMusicPath = soundPath+firstNote+'.mp3'
         secondMusicPath = soundPath+secondNote+'.mp3'
@@ -261,8 +293,8 @@ def intervalTraining(args):
 
         intervalMusicPath = intervalNamePath + intervalNames[halfNum].replace(' ','') + '.mp3'
         p = subprocess.Popen(["mplayer", intervalMusicPath], stdout=subprocess.PIPE)
-        print('\n## Info ## : ', '----------------------', 
-            halfNum, intervalNames[halfNum], ':', firstNote, secondNote, '\n')
+        print('\n## Info ## : ', '---------------------- Semitone(%d)'%halfNum, 
+            intervalNames[halfNum], ':', firstNote, secondNote, '\n')
         sleep(args.delay)
 
 
@@ -273,8 +305,9 @@ def playChords(tonic, chordName, scaleList, delay):
     scalePlayList1 = [x+pitchNum for x in scaleList]
     scalePlayList2 = [x+str(int(pitchNum)+1) for x in scaleList]
     scalePlayList3 = [x+str(int(pitchNum)+2) for x in scaleList]
+
     scalePlayList = scalePlayList1+scalePlayList2+scalePlayList3
-    #print(chordStepList, scalePlayList)
+    print(scalePlayList1, scalePlayList2, scalePlayList3, scalePlayList)
 
     chordBuff = []
 
@@ -282,6 +315,7 @@ def playChords(tonic, chordName, scaleList, delay):
         noteName = scalePlayList[scalePlayList.index(tonic)+step]
         musicPath = soundPath+noteName+'.mp3'
         chordBuff.append(noteName)
+        print(noteName)
 
         p = subprocess.Popen(["mplayer", musicPath], stdout=subprocess.PIPE)
         sleep(delay)
@@ -302,8 +336,15 @@ def chordTraining(args):
 
     chordName = args.chord
 
+    index = 0
     while(True):
-        tonic = random.choice(scaleList)+re.findall('\d+', noteStart)[0]
+        if args.random == 'on':
+            tonic = random.choice(scaleList)
+        else:
+            tonic = scaleList[int(index%len(scaleList))]
+            index = index + 1
+
+        tonic = tonic + re.findall('\d+', noteStart)[0]
         playChords(tonic, chordName, scaleList, 1)
         playChords(tonic, chordName, scaleList, 0)
         sleep(args.delay)
@@ -325,11 +366,17 @@ def scaleTraining(args):
 
     noteChoice = noteList[noteList.index(noteStart):noteList.index(noteEnd)+1]
     scaleChoice = list(scaleDict.keys())
-    print(noteChoice)
+    print(noteChoice, '\n', scaleChoice)
 
+    scale_index = 0
     while(True):
+        if args.random == 'on':
+            scaleName = random.choice(scaleChoice)
+        else:
+            scaleName = scaleChoice[scale_index%len(scaleChoice)]
+            scale_index = scale_index + 1
+
         firstNote = random.choice(noteChoice)
-        scaleName = random.choice(scaleChoice)
         scaleSpell = scaleNamePath+scaleName.replace(' ','')+'.mp3'
 
         scaleStep = scaleDict[scaleName]
@@ -350,15 +397,18 @@ def scaleTraining(args):
         p = subprocess.Popen(["mplayer", scaleSpell], stdout=subprocess.PIPE)
         sleep(args.delay)    
 
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='ear training, similar as www.musictheory.net/exercises')
     parser.add_argument("-i", "--instrument", default='piano', type=str, help="piano/guitar")
     parser.add_argument("-m", "--mode", default='note', type=str, help="note/interval/chord/scale")
-    parser.add_argument("-r", "--range", default='C4-C5', type=str, help="Note range like C4-C5")
+    parser.add_argument("-a", "--range", default='C4-C5', type=str, help="Note range like C4-C5")
     parser.add_argument("-k", "--key", default='white', type=str, help="white/black/full")
     parser.add_argument("-d", "--delay", default=5, type=int, nargs='?', help="delay secs after bee")
     parser.add_argument("-s", "--scale", default='C', type=str, help="C/G/D/A/E/B/F#/Gb/Db/Ab/Eb/Bb/F")
     parser.add_argument("-u", "--updown", default='up', type=str, help="up/down")
+    parser.add_argument("-r", "--random", default='on', type=str, help="on/off")
     parser.add_argument("-c", "--chord", default='3', type=str, help="3/6/46/sus2/sus4/7/56/34/2/9/11/13")
 
     args = parser.parse_args()
