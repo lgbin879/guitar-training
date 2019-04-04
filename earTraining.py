@@ -5,23 +5,35 @@
 
 ###
 '''
-usage: earTraining.py [-h] [-i INSTRUMENT] [-m MODE] [-r RANGE] [-k KEY]
-                      [-d [DELAY]] [-s SCALE]
+To use this script, you need to install mplayer first.
 
-random generate A-G pitches and play the sound
+In Ubuntu:
+sudo apt-get install mplayer
+
+usage: earTraining.py [-h] [-i INSTRUMENT] [-m MODE] [-a RANGE] [-k KEY]
+                      [-d [DELAY]] [-s SCALE] [-u UPDOWN] [-r RANDOM]
+                      [-c CHORD]
+
+ear training, similar as www.musictheory.net/exercises
 
 optional arguments:
   -h, --help            show this help message and exit
   -i INSTRUMENT, --instrument INSTRUMENT
                         piano/guitar
   -m MODE, --mode MODE  note/interval/chord/scale
-  -r RANGE, --range RANGE
+  -a RANGE, --range RANGE
                         Note range like C4-C5
   -k KEY, --key KEY     white/black/full
   -d [DELAY], --delay [DELAY]
                         delay secs after bee
   -s SCALE, --scale SCALE
-                        C/D/E/F/G/A/B
+                        C/G/D/A/E/B/F#/Gb/Db/Ab/Eb/Bb/F
+  -u UPDOWN, --updown UPDOWN
+                        up/down
+  -r RANDOM, --random RANDOM
+                        on/off
+  -c CHORD, --chord CHORD
+                        3/6/46/sus2/sus4/7/56/34/2/9/11/13
 
 
 '''
@@ -73,22 +85,7 @@ pianoAllKeys = ['C2', 'C#2', 'D2', 'D#2', 'E2', 'F2', 'F#2', 'G2', 'G#2', 'A2', 
  'C7']
 '''
 
-natrual3Chords = [  
-'C', 'Cm',   
-'D', 'Dm',   
-'E', 'Em',   
-'F', 'Fm',   
-'G', 'Gm', 
-'A', 'Am',   
-'B', 'Bm' ]
-
-chromatic3Chords = [
-'Ab', 'Abm', 
-'Bb', 'Bbm', 
-'Eb', 'Ebm', 
-'F#', 'F#m' ]
-
-#"3/6/46/sus2/sus4/7/56/34/2/9/11/13/15"
+#"3/6/46/sus2/sus4/7/56/34/2/9/11/13"
 chordNoteDict = {
     '3' : [0,2,4],          #C4,E4,G4
     '6' : [2,4,7],          #E4,G4,C5
@@ -183,7 +180,6 @@ def playKeys(noteChoice):
         #sleep(2)
 
 def noteTraining(args):
-    print('\n##### Note Ear Training Mode, Range %s #####\n'%(args.range))
 
     noteRange = args.range.split('-')
     noteStart = noteRange[0]
@@ -227,7 +223,6 @@ def noteTraining(args):
 
 
 def intervalTraining(args):
-    print('\n##### Interval Ear Training Mode, Range %s #####\n'%(args.range))
 
     noteRange = args.range.split('-')
     noteStart = noteRange[0]
@@ -302,30 +297,52 @@ def playChords(tonic, chordName, scaleList, delay):
     pitchNum = re.findall('\d+', tonic)[0]
     chordStepList = chordNoteDict[chordName]
 
-    scalePlayList1 = [x+pitchNum for x in scaleList]
-    scalePlayList2 = [x+str(int(pitchNum)+1) for x in scaleList]
-    scalePlayList3 = [x+str(int(pitchNum)+2) for x in scaleList]
+    newOctave = 0
+    scalePlayList1 =[]
+    scalePlayList2 =[]
+    scalePlayList3 =[]
+
+    for x in scaleList:
+        if scaleList[0] == 'C': ##C major in the same octave
+            scalePlayList1.append(x+pitchNum)
+            scalePlayList2.append(x+str(int(pitchNum)+1))
+            scalePlayList3.append(x+str(int(pitchNum)+2))
+        else: ## non C major in two octaves
+            if x[0] == 'C' or newOctave == 1:
+                newOctave = 1
+                scalePlayList1.append(x+str(int(pitchNum)+1))
+                scalePlayList2.append(x+str(int(pitchNum)+2))
+                scalePlayList3.append(x+str(int(pitchNum)+3))
+            else:
+                scalePlayList1.append(x+pitchNum)
+                scalePlayList2.append(x+str(int(pitchNum)+1))
+                scalePlayList3.append(x+str(int(pitchNum)+2))
 
     scalePlayList = scalePlayList1+scalePlayList2+scalePlayList3
-    print(scalePlayList1, scalePlayList2, scalePlayList3, scalePlayList)
+    #print(tonic, chordName, scalePlayList)
 
     chordBuff = []
 
     for step in chordStepList:
-        noteName = scalePlayList[scalePlayList.index(tonic)+step]
+        if tonic in scalePlayList:
+            noteName = scalePlayList[scalePlayList.index(tonic)+step]
+        else: ## non C major in two octaves
+            tonic = tonic[0:-1]+str(int(tonic[-1])+1)
+            noteName = scalePlayList[scalePlayList.index(tonic)+step]
+
         musicPath = soundPath+noteName+'.mp3'
         chordBuff.append(noteName)
-        print(noteName)
+        #print(noteName)
 
         p = subprocess.Popen(["mplayer", musicPath], stdout=subprocess.PIPE)
         sleep(delay)
 
-    print('\n## Info ## : ', '----------------------', tonic, chordName, ':', chordBuff, '\n')
+    if delay == 0:
+        print('\n## Info ## : ', '----------------------', tonic[0:-1], chordName, ':', chordBuff, '\n')
         
 
 
 def chordTraining(args):
-    print('\n##### Chord Ear Training Mode, Range %s #####\n'%(args.range))
 
     noteRange = args.range.split('-')
     noteStart = noteRange[0]
@@ -351,7 +368,6 @@ def chordTraining(args):
 
 
 def scaleTraining(args):
-    print('\n##### Scale Ear Training Mode, Range %s #####\n'%(args.range))
 
     noteRange = args.range.split('-')
     noteStart = noteRange[0]
@@ -368,13 +384,13 @@ def scaleTraining(args):
     scaleChoice = list(scaleDict.keys())
     print(noteChoice, '\n', scaleChoice)
 
-    scale_index = 0
+    scaleIndex = 0
     while(True):
         if args.random == 'on':
             scaleName = random.choice(scaleChoice)
         else:
             scaleName = scaleChoice[scale_index%len(scaleChoice)]
-            scale_index = scale_index + 1
+            scaleIndex = scaleIndex + 1
 
         firstNote = random.choice(noteChoice)
         scaleSpell = scaleNamePath+scaleName.replace(' ','')+'.mp3'
@@ -413,6 +429,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     print(args)
+    print('\n##### %s Ear Training Mode, Range %s #####\n'%(args.mode, args.range))
 
     if args.mode == 'note':
         noteTraining(args)
